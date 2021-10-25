@@ -10,6 +10,7 @@ from torch import Tensor
 
 
 class LinearRegression(LinearModel, RegressorMixin):
+    """使用lstsq实现"""
     def __init__(self, *, dtype=None, device=None):
         self.dtype = dtype
         self.device = device

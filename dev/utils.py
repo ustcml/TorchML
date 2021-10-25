@@ -4,6 +4,29 @@
 
 import torch
 from torch import Tensor
+from typing import Tuple
+
+__all__ = ["_data_center", "atleast_2d"]
+
+
+def _data_center(X: Tensor, y: Tensor = None) -> Tuple:
+    """数据居中
+
+    :param X: shape[N, F]
+    :param y: shape[N, Out]
+    :return: Tuple[X, y, X_mean, y_mean]
+        X: shape[N, F]
+        y: shape[N, Out]
+        X_mean: shape[F]
+        y_mean: shape[Out]
+    """
+    X_mean = torch.mean(X, dim=0)
+    X = X - X_mean
+    if y is not None:
+        y_mean = torch.mean(y, dim=0)
+        y = y - y_mean
+        return X, y, X_mean, y_mean
+    return X, X_mean
 
 
 def atleast_2d(*tensors: Tensor):

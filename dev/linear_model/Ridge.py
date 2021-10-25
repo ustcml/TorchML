@@ -5,11 +5,13 @@ from ._base import LinearModel, _solve_svd
 from ..base import RegressorMixin
 import torch
 from ..utils import atleast_2d
+from torch import Tensor
 
 
 class Ridge(LinearModel, RegressorMixin):
+    """使用svd实现"""
+
     def __init__(self, *, alpha=1.0, dtype=None, device=None):
-        """使用svd实现"""
         self.dtype = dtype
         self.device = device
         self.alpha = alpha
@@ -24,8 +26,8 @@ class Ridge(LinearModel, RegressorMixin):
         :param y: shape[N, Out] or [N]
         :return:
         """
-        dtype = self.dtype = torch.float32
-        device = self.device
+        dtype = self.dtype = self.dtype or torch.float32
+        device = self.device = self.device or (X.device if isinstance(X, Tensor) else 'cpu')
         alpha = self.alpha
         #
         X = torch.as_tensor(X, dtype=dtype, device=device)

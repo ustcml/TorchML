@@ -8,6 +8,9 @@ from sklearn.base import BaseEstimator
 from torch import Tensor
 from torch.linalg import svd
 from ..base import ClassifierMixin
+from ..utils import _data_center
+
+__all__ = ["_solve_svd", "LinearModel", "LinearClassifierMixin"]
 
 
 def _solve_svd(X: Tensor, y: Tensor, alpha) -> Tensor:
@@ -22,23 +25,6 @@ def _solve_svd(X: Tensor, y: Tensor, alpha) -> Tensor:
     U, s, Vt = svd(X, full_matrices=False)
     d = s / (s ** 2 + alpha)  # [Min]
     return Vt.T @ (d[:, None] * U.T) @ y
-
-
-def _data_center(X: Tensor, y: Tensor) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-    """数据居中. not copy
-
-    :param X: shape[N, F]
-    :param y: shape[N, Out]
-    :return: Tuple[X, y, X_mean, y_mean]
-        X: shape[N, F]
-        y: shape[N, Out]
-        X_mean: shape[F]
-        y_mean: shape[Out]
-    """
-    X_mean = torch.mean(X, dim=0)
-    y_mean = torch.mean(y, dim=0)
-    X, y = X - X_mean, y - y_mean
-    return X, y, X_mean, y_mean
 
 
 class LinearModel(BaseEstimator, metaclass=ABCMeta):
@@ -81,7 +67,7 @@ class LinearClassifierMixin(ClassifierMixin):
         return X @ self.coef_.T + self.intercept_
 
     def predict(self, X):
-        scores = self.decision_function(X)  # 不过sigmoid/softmax
+        scores = self.decision_function(X)  # 不经过sigmoid/softmax
         if scores.shape[1] == 1:
             indices = (scores > 0).to(dtype=torch.long)
         else:
