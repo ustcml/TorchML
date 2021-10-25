@@ -7,7 +7,7 @@ import torch
 def mean_squared_error(
         y_true, y_pred, *,
         multioutput="uniform_average",
-        squared: bool = True, return_tensor=False):
+        squared: bool = True, return_tensor: bool = False):
     """
 
     :param y_true: shape[N, Out] or shape[N]

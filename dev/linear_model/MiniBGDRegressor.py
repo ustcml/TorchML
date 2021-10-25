@@ -24,7 +24,7 @@ class MiniBGDRegressor(LinearModel, RegressorMixin):
         :param max_iter: 最大迭代次数(epoch)
         :param eta0: 初始学习率
         :param momentum: SGD的动量
-        :param shuffle: 每个epoch随机
+        :param shuffle: DataLoader的shuffle. 每个epoch随机混洗
         :param num_workers: DataLoader的num_workers
         """
         self.alpha = alpha

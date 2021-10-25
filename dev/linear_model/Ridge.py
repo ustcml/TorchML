@@ -36,8 +36,6 @@ class Ridge(LinearModel, RegressorMixin):
         # shape[N, F], shape[N, Out], shape[F], shape[Out]
         X, y, X_mean, y_mean = self._data_center(X, y)  # center
 
-        # or:
-        # self.coef_ = (pinv(X) @ y).T
         self.coef_ = _solve_svd(X, y, alpha).T
         self.intercept_ = y_mean - X_mean @ self.coef_.T
 

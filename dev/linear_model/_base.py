@@ -1,8 +1,6 @@
 from abc import ABCMeta, abstractmethod
-from collections import defaultdict
 
 import torch
-from typing import Tuple
 
 from sklearn.base import BaseEstimator
 from torch import Tensor
@@ -21,9 +19,9 @@ def _solve_svd(X: Tensor, y: Tensor, alpha) -> Tensor:
     :param alpha: float
     :return: shape[F, Out]
     """
-    # [N, Min] [Min] [Min, F]
+    # shape[N, Min], [Min], [Min, F]
     U, s, Vt = svd(X, full_matrices=False)
-    d = s / (s ** 2 + alpha)  # [Min]
+    d = s / (s ** 2 + alpha)  # shape[Min]
     return Vt.T @ (d[:, None] * U.T) @ y
 
 
