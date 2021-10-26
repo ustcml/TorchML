@@ -16,8 +16,9 @@ def confusion_matrix(
     :param normalize: {'true', 'pred', 'all', None}.
     :return:
     """
-    y_true = torch.as_tensor(y_true)
-    y_pred = torch.as_tensor(y_pred)
+    dtype = torch.float32
+    y_true = torch.as_tensor(y_true, dtype=dtype)
+    y_pred = torch.as_tensor(y_pred, dtype=dtype)
     #
     n_classes = torch.max(y_true).item() + 1
     # 计算cm

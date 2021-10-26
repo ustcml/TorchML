@@ -4,6 +4,7 @@
 from .metrics import r2_score, accuracy_score
 from .utils import atleast_2d
 import torch
+from torch import Tensor
 
 __all__ = ["RegressorMixin", "ClassifierMixin", "TransformerMixin"]
 
@@ -11,7 +12,7 @@ __all__ = ["RegressorMixin", "ClassifierMixin", "TransformerMixin"]
 class RegressorMixin:
     """Mixin class for all regression estimators in scikit-learn."""
 
-    def score(self, X, y) -> float:
+    def score(self, X, y) -> Tensor:
         dtype = self.dtype
         device = self.device
         #
@@ -25,7 +26,7 @@ class RegressorMixin:
 class ClassifierMixin:
     """Mixin class for all classifiers in scikit-learn."""
 
-    def score(self, X, y):
+    def score(self, X, y) -> Tensor:
         dtype = self.dtype
         device = self.device
         #

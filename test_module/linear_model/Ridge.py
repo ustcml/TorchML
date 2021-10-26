@@ -6,7 +6,6 @@ import numpy as np
 from sklearn.linear_model import Ridge as _Ridge
 import time
 from dev.linear_model import Ridge
-import torch
 
 # In[0]: 测试运行时间
 # In[1]: 测试准确性
@@ -39,7 +38,7 @@ reg = Ridge(device='cuda')
 reg.fit(X, y)
 #
 y_t = reg.predict(X).cpu().numpy()
-s_t = reg.score(X, y)
+s_t = reg.score(X, y).cpu().numpy()
 c_t = reg.coef_.cpu().numpy()
 i_t = reg.intercept_.cpu().numpy()
 print("time: %.6f" % (time.time() - t))
@@ -112,7 +111,7 @@ reg = Ridge(device='cuda')
 reg.fit(X, y)
 #
 y_t = reg.predict(X).cpu().numpy()
-s_t = reg.score(X, y)
+s_t = reg.score(X, y).cpu().numpy()
 c_t = reg.coef_.cpu().numpy()
 i_t = reg.intercept_.cpu().numpy()
 print(y_sk, y_t)
@@ -122,7 +121,7 @@ print(i_sk, i_t)
 """Out[3]
 [0.5672046 0.5262452] [[0.5672046]
  [0.5262452]]
-0.34373288682296077 0.34373289346694946
+0.34373288682296077 0.3437329
 [-0.0598205] [[-0.05982049]]
 0.5725436 [0.5725436]
 """

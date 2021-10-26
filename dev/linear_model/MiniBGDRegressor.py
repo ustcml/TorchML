@@ -76,7 +76,7 @@ class MiniBGDRegressor(LinearModel, RegressorMixin):
             for Xi, yi in loader:
                 Xi, yi = Xi.to(device), yi.to(device)
                 y_pred = linear(Xi)
-                loss = mean_squared_error(yi, y_pred, return_tensor=True)
+                loss = mean_squared_error(yi, y_pred)
                 optim.zero_grad()
                 loss.backward()
                 optim.step()

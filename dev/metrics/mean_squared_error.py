@@ -9,18 +9,18 @@ from typing import Union
 def mean_squared_error(
         y_true, y_pred, *,
         multioutput="uniform_average",
-        squared: bool = True, return_tensor: bool = False) -> Union[float, Tensor]:
+        squared: bool = True) -> Tensor:
     """
 
     :param y_true: shape[N, Out] or shape[N]
     :param y_pred: shape[N, Out] or shape[N]
     :param multioutput: {'raw_values', 'uniform_average'} or shape[Out]
     :param squared: True: MSE; False: RMSE
-    :param return_tensor: 是否返回Tensor
     :return:
     """
-    y_true = torch.as_tensor(y_true)
-    y_pred = torch.as_tensor(y_pred)
+    dtype = torch.float32
+    y_true = torch.as_tensor(y_true, dtype=dtype)
+    y_pred = torch.as_tensor(y_pred, dtype=dtype)
     #
     res = torch.mean((y_true - y_pred) ** 2, dim=0)
     if squared is False:
@@ -33,4 +33,4 @@ def mean_squared_error(
     else:
         # multioutput is shape[Out]
         res = torch.sum(res * multioutput)
-    return res if return_tensor else res.item()
+    return res
