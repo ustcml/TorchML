@@ -19,7 +19,7 @@ def accuracy_score(
     """
     y_true = torch.as_tensor(y_true)
     y_pred = torch.as_tensor(y_pred)
-
+    #
     N = y_true.shape[0]
     res = torch.count_nonzero(y_true == y_pred).item()
     return res / N if normalize else res

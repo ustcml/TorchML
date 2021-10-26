@@ -2,6 +2,7 @@
 # Email: hjt_study@qq.com
 # Date:
 from .metrics import r2_score, accuracy_score
+from .utils import atleast_2d
 import torch
 
 __all__ = ["RegressorMixin", "ClassifierMixin", "TransformerMixin"]
@@ -17,6 +18,7 @@ class RegressorMixin:
         X = torch.as_tensor(X, dtype=dtype, device=device)
         y = torch.as_tensor(y, dtype=dtype, device=device)
         y_pred = self.predict(X)
+        y = atleast_2d(y)
         return r2_score(y, y_pred)
 
 
@@ -30,6 +32,7 @@ class ClassifierMixin:
         X = torch.as_tensor(X, dtype=dtype, device=device)
         y = torch.as_tensor(y, dtype=dtype, device=device)
         y_pred = self.predict(X)
+        y = atleast_2d(y)
         return accuracy_score(y, y_pred)
 
 

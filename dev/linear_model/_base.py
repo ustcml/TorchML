@@ -11,12 +11,12 @@ from ..utils import _data_center
 __all__ = ["_solve_svd", "LinearModel", "LinearClassifierMixin"]
 
 
-def _solve_svd(X: Tensor, y: Tensor, alpha) -> Tensor:
+def _solve_svd(X: Tensor, y: Tensor, alpha: float) -> Tensor:
     """
 
     :param X: shape[N, F]
     :param y: shape[N, Out]
-    :param alpha: float
+    :param alpha:
     :return: shape[F, Out]
     """
     # shape[N, Min], [Min], [Min, F]
