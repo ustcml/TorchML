@@ -13,10 +13,10 @@ def _binary_clf_curve(
 
     :param y_true: shape[N]
     :param y_score: shape[N]
-    :return: tp, fp, thresholds. shape[T], shape[T], shape[T]. T: n_thresholds
-        fp: 递增
-        tp: 递增
-        thresholds: 递减
+    :return: fps, tps, thresholds.
+        fps: shape[T]. 递增. T: n_thresholds
+        tps: shape[T]. 递增
+        thresholds: shape[T]. 递减
     """
     device = y_score.device
     # 降序score排序
@@ -37,24 +37,23 @@ def _binary_clf_curve(
 
 def precision_recall_curve(
         y_true, probas_pred) -> Tuple[Tensor, Tensor, Tensor]:
-    """PR图中: y轴为p, x轴为r
+    """PR图中: y轴为P, x轴为R
 
     :param y_true: shape[N]
     :param probas_pred: shape[N]
-    :return: precision, recall, thresholds: shape[T+1], shape[T+1], shape[T]. T: n_thresholds
-        precision: 趋势递增
-        recall: 递减
-        thresholds: 递增
+    :return: Tuple[precision, recall, thresholds]
+        precision: shape[T+1]. 趋势递增. T: n_thresholds
+        recall: shape[T+1]. 递减
+        thresholds: shape[T]. 递增
     """
     dtype = torch.float32
-    device = y_true.device
     y_true = torch.as_tensor(y_true, dtype=dtype)
     probas_pred = torch.as_tensor(probas_pred, dtype=dtype)
+    device = y_true.device
     #
     fp, tp, thresholds = _binary_clf_curve(y_true, probas_pred)  # shape[T] [T] [T]
-    #
+    # tp[-1] = m+, fp[-1] = m-. 因为最低阀值包含所有true_pos, true_neg
     precision = tp / (tp + fp)
-    # tp[-1] = m+, fp[-1] = m-. 最低阀值包含所有true_pos, true_neg
     recall = tp / tp[-1]
     # recall最后不提升/变化的略去. 因为对AP不贡献
     last_ind = int(torch.searchsorted(tp, tp[-1])) + 1

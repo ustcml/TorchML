@@ -2,7 +2,7 @@
 # Email: hjt_study@qq.com
 # Date: 
 import torch
-from .precision_recall_fscore_support import precision_recall_fscore_support
+from . import precision_recall_fscore_support
 from torch import Tensor
 
 
