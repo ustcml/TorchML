@@ -10,7 +10,7 @@ __all__ = ["RegressorMixin", "ClassifierMixin", "TransformerMixin"]
 
 
 class RegressorMixin:
-    """Mixin class for all regression estimators in scikit-learn."""
+    """Mixin class for all regression estimators"""
 
     def score(self, X, y) -> Tensor:
         dtype = self.dtype
@@ -24,7 +24,7 @@ class RegressorMixin:
 
 
 class ClassifierMixin:
-    """Mixin class for all classifiers in scikit-learn."""
+    """Mixin class for all classifiers"""
 
     def score(self, X, y) -> Tensor:
         dtype = self.dtype
@@ -38,9 +38,9 @@ class ClassifierMixin:
 
 
 class TransformerMixin:
-    """Mixin class for all transformers in scikit-learn."""
+    """Mixin class for all transformers"""
 
-    def fit_transform(self, X, y=None, **fit_params):
+    def fit_transform(self, X, y=None, **fit_params) -> Tensor:
         dtype = self.dtype
         device = self.device
         #

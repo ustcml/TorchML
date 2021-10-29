@@ -13,7 +13,7 @@ def _binary_clf_curve(
 
     :param y_true: shape[N]
     :param y_score: shape[N]
-    :return: fps, tps, thresholds.
+    :return: Tuple[fps, tps, thresholds]
         fps: shape[T]. 递增. T: n_thresholds
         tps: shape[T]. 递增
         thresholds: shape[T]. 递减

@@ -1,8 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
 import torch
-
-from sklearn.base import BaseEstimator
 from torch import Tensor
 from torch.linalg import svd
 from ..base import ClassifierMixin
@@ -25,7 +23,7 @@ def _solve_svd(X: Tensor, y: Tensor, alpha: float) -> Tensor:
     return Vt.T @ (d[:, None] * U.T) @ y
 
 
-class LinearModel(BaseEstimator, metaclass=ABCMeta):
+class LinearModel(metaclass=ABCMeta):
     """Base class for Linear Models"""
 
     @abstractmethod

@@ -5,13 +5,12 @@ import torch
 from ..utils import atleast_2d, _data_center
 from torch.linalg import svd
 from torch import Tensor
-from sklearn.base import BaseEstimator
 from ..base import TransformerMixin
 
 __all__ = ["PCA"]
 
 
-class PCA(BaseEstimator, TransformerMixin):
+class PCA(TransformerMixin):
     """使用full svd实现"""
 
     def __init__(self, n_components=None):
