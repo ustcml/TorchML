@@ -59,22 +59,21 @@ class MiniBGDRegressor(LinearModel, RegressorMixin):
         shuffle = self.shuffle
         num_workers = self.num_workers
         random_state = self.random_state
-        pin_memory = False if device.lower() == 'cpu' else True
 
-        #
-        X = torch.as_tensor(X, dtype=dtype)
-        y = torch.as_tensor(y, dtype=dtype)
+        # 更快
+        X = torch.as_tensor(X, dtype=dtype, device=device)
+        y = torch.as_tensor(y, dtype=dtype, device=device)
         X, y = atleast_2d(X, y)
+        X, y, X_mean, y_mean = self._data_center(X, y)  # center
         #
         if random_state:
             torch.manual_seed(random_state)
-        linear = nn.Linear(X.shape[1], y.shape[1]).to(device)
+        linear = nn.Linear(X.shape[1], y.shape[1], bias=False).to(device)
         dataset = TensorDataset(X, y)
-        loader = DataLoader(dataset, batch_size, shuffle, pin_memory=pin_memory, num_workers=num_workers)
+        loader = DataLoader(dataset, batch_size, shuffle, pin_memory=False, num_workers=num_workers)
         optim = SGD(linear.parameters(), eta0, momentum, weight_decay=alpha)
         for i in range(max_iter):
             for Xi, yi in loader:
-                Xi, yi = Xi.to(device), yi.to(device)
                 y_pred = linear(Xi)
                 loss = mean_squared_error(yi, y_pred)
                 optim.zero_grad()
@@ -82,5 +81,5 @@ class MiniBGDRegressor(LinearModel, RegressorMixin):
                 optim.step()
         #
         self.coef_ = linear.weight.detach()
-        self.intercept_ = linear.bias.detach()
+        self.intercept_ = y_mean - X_mean @ self.coef_.T
         return self
