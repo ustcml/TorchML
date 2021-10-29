@@ -12,6 +12,5 @@
 - [https://pytorch.org/docs/stable/index.html](https://pytorch.org/docs/stable/index.html)
 
 
-### 版本
-- sklearn==1.0.1
+### 环境
 - torch==1.10.0

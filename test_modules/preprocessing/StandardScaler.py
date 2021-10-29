@@ -34,3 +34,11 @@ print()
 True
 torch.float64 cuda:0
 """
+
+# In[2]: nan
+X = np.array([[1, 2, np.nan]])
+s = StandardScaler().fit(X)
+print(s.mean_, s.scale_, s.transform(X))
+"""Out[2]
+tensor([1., 2., nan]) tensor([0., 0., nan]) tensor([[nan, nan, nan]])
+"""

@@ -34,3 +34,14 @@ print()
 True
 torch.float64 cuda:0
 """
+
+# In[2]: nan
+X = np.array([[1, 2, np.nan], [2, 1, 1]])
+s = MinMaxScaler().fit(X)
+print(s.min_, s.scale_)
+print(s.transform(X))
+"""Out[1]
+tensor([-1., -1., nan]) tensor([1., 1., nan]) 
+tensor([[0., 1., nan],
+        [1., 0., nan]])
+"""
