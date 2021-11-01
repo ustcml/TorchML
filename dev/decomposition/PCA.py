@@ -13,8 +13,10 @@ __all__ = ["PCA"]
 class PCA(TransformerMixin):
     """使用full svd实现"""
 
-    def __init__(self, n_components=None):
+    def __init__(self, n_components=None, *, dtype=None, device=None):
         self.n_components = n_components
+        self.dtype = dtype
+        self.device = device
         #
         self.mean_ = None  # shape[F]
         self.singular_values_ = None  # shape[N_CP]
@@ -31,19 +33,19 @@ class PCA(TransformerMixin):
         dtype = self.dtype = self.dtype or torch.float32
         device = self.device = self.device or (X.device if isinstance(X, Tensor) else 'cpu')
         #
-        self.n_components = self.n_components
+        n_components = self.n_components
         X = torch.as_tensor(X, dtype=dtype, device=device)
-        X, y = atleast_2d(X)
+        X = atleast_2d(X)
         #
         X, self.mean_ = _data_center(X)  # center
         U, S, Vt = svd(X, full_matrices=False)
         #
-        self.singular_values_ = S[:self.n_components]  # shape[N_CP]
-        self.components_ = Vt[:self.n_components]  # shape[N_CP, F]
+        self.singular_values_ = S[:n_components]  # shape[N_CP]
+        self.components_ = Vt[:n_components]  # shape[N_CP, F]
         #
         self.explained_variance_ = (S ** 2) / (X.shape[0] - 1)
         total_var = torch.sum(self.explained_variance_)  # for 归一化
-        self.explained_variance_ = self.explained_variance_[:self.n_components]
+        self.explained_variance_ = self.explained_variance_[:n_components]
         self.explained_variance_ratio_ = self.explained_variance_ / total_var
         return self
 
