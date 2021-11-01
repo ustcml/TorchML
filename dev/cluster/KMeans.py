@@ -6,6 +6,7 @@ from ..utils import atleast_2d, _data_center
 from torch import Tensor
 from ..base import TransformerMixin
 from torch import Generator
+from typing import Tuple
 
 __all__ = ["KMeans"]
 
@@ -31,7 +32,7 @@ class KMeans(TransformerMixin):
         self.labels_ = None  # shape[N]
         self.inertia_ = None  # float
 
-    def _random_init_centers(self, X):
+    def _random_init_centers(self, X: Tensor) -> Tensor:
         """
 
         :param X: shape[N, F]
@@ -45,11 +46,14 @@ class KMeans(TransformerMixin):
         centers = X[seeds]
         return centers
 
-    def _kmeans_single(self, X):
+    def _kmeans_single(self, X: Tensor) -> Tuple[Tensor, Tensor, float]:
         """
 
-        :param X:
-        :return: 是否收敛
+        :param X: shape[N, F]
+        :return: Tuple[centers, labels, inertia]
+            centers: shape[N_CL, F]
+            labels: shape[N]
+            inertia: float
         """
         max_iter = self.max_iter
         n_clusters = self.n_clusters
@@ -70,9 +74,9 @@ class KMeans(TransformerMixin):
                 break
             prev_centers = centers
         # 计算惯性
-        inertia = 0
+        inertia = 0.
         for i in range(n_clusters):
-            inertia += torch.sum((X[labels == i] - centers[i]) ** 2)
+            inertia += torch.sum((X[labels == i] - centers[i]) ** 2).item()
         return centers, labels, inertia
 
     def fit(self, X):
@@ -111,8 +115,8 @@ class KMeans(TransformerMixin):
     def predict(self, X):
         """
 
-        :param X:
-        :return:
+        :param X: shape[N, F]
+        :return: shape[N]
         """
         dtype = self.dtype
         device = self.device
