@@ -4,7 +4,7 @@ import torch
 from torch import Tensor
 from torch.linalg import svd
 from ..base import ClassifierMixin
-from ..utils import _data_center
+from ..utils import _data_center, atleast_2d
 
 __all__ = ["_solve_svd", "LinearModel", "LinearClassifierMixin"]
 
@@ -45,6 +45,7 @@ class LinearModel(metaclass=ABCMeta):
         :return: shape[N, Out]
         """
         X = torch.as_tensor(X, dtype=self.dtype, device=self.device)
+        X = atleast_2d(X)
         return self._decision_function(X)
 
     _data_center = staticmethod(_data_center)

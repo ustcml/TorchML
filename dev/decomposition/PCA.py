@@ -14,15 +14,15 @@ class PCA(TransformerMixin):
     """使用full svd实现"""
 
     def __init__(self, n_components=None, *, dtype=None, device=None):
-        self.n_components = n_components
+        self.n_components = n_components  # K
         self.dtype = dtype
         self.device = device
         #
         self.mean_ = None  # shape[F]
-        self.singular_values_ = None  # shape[N_CP]
-        self.components_ = None  # shape[N_CP, F]
-        self.explained_variance_ = None  # shape[N_CP]
-        self.explained_variance_ratio_ = None  # shape[N_CP]
+        self.singular_values_ = None  # shape[K]
+        self.components_ = None  # shape[K, F]
+        self.explained_variance_ = None  # shape[K]
+        self.explained_variance_ratio_ = None  # shape[K]
 
     def fit(self, X):
         """
@@ -40,8 +40,8 @@ class PCA(TransformerMixin):
         X, self.mean_ = _data_center(X)  # center
         U, S, Vt = svd(X, full_matrices=False)
         #
-        self.singular_values_ = S[:n_components]  # shape[N_CP]
-        self.components_ = Vt[:n_components]  # shape[N_CP, F]
+        self.singular_values_ = S[:n_components]  # shape[K]
+        self.components_ = Vt[:n_components]  # shape[K, F]
         #
         self.explained_variance_ = (S ** 2) / (X.shape[0] - 1)
         total_var = torch.sum(self.explained_variance_)  # for 归一化
@@ -53,7 +53,7 @@ class PCA(TransformerMixin):
         """
 
         :param X: shape[N, F]
-        :return: shape[N, N_CP]
+        :return: shape[N, K]
         """
         X = torch.as_tensor(X, dtype=self.dtype, device=self.device)
         return X @ self.components_.T
@@ -61,7 +61,7 @@ class PCA(TransformerMixin):
     def inverse_transform(self, X):
         """
 
-        :param X: shape[N, N_CP]
+        :param X: shape[N, K]
         :return: shape[N, F]
         """
         X = torch.as_tensor(X, dtype=self.dtype, device=self.device)

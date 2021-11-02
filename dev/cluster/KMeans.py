@@ -7,6 +7,7 @@ from torch import Tensor
 from ..base import TransformerMixin
 from torch import Generator
 from typing import Tuple
+from ..metrics import euclidean_distances
 
 __all__ = ["KMeans"]
 
@@ -21,14 +22,14 @@ class KMeans(TransformerMixin):
         :param n_clusters:
         :param n_init: 使用不同质心种子运行的次数
         """
-        self.n_clusters = n_clusters
+        self.n_clusters = n_clusters  # K
         self.n_init = n_init
         self.max_iter = max_iter
         self.random_state = random_state
         self.dtype = dtype
         self.device = device
         #
-        self.cluster_centers_ = None  # shape[N_CL, F]
+        self.cluster_centers_ = None  # shape[K, F]
         self.labels_ = None  # shape[N]
         self.inertia_ = None  # float
 
@@ -36,7 +37,7 @@ class KMeans(TransformerMixin):
         """
 
         :param X: shape[N, F]
-        :return: shape[N_CL, F]
+        :return: shape[K, F]
         """
         random_state = self.random_state  # type: Generator
         n_clusters = self.n_clusters
@@ -51,32 +52,33 @@ class KMeans(TransformerMixin):
 
         :param X: shape[N, F]
         :return: Tuple[centers, labels, inertia]
-            centers: shape[N_CL, F]
+            centers: shape[K, F]
             labels: shape[N]
             inertia: float
         """
         max_iter = self.max_iter
         n_clusters = self.n_clusters
         # 初始化质心
-        centers = self._random_init_centers(X)  # shape[N_CL, F]
-        prev_centers = centers
+        centers = self._random_init_centers(X)  # shape[K, F]
+        prev_labels = None
         for _ in range(max_iter):
-            # shape[K, N, F]. 更新labels
-            d2 = torch.sum((X - centers[:, None]) ** 2, dim=-1)
-            labels = torch.argmin(d2, 0)
+            # 更新labels
+            d2 = euclidean_distances(X, centers, squared=True)  # shape[N, K]
+            labels = torch.argmin(d2, 1)  # shape[N]
             # 更新质心
             centers = []  # 内含: shape[F]
             for i in range(n_clusters):
                 centers.append(torch.mean(X[labels == i], 0))
-            centers = torch.stack(centers, dim=0)  # shape[N_CL, F]
-            # 质心位置不再变化，迭代停止，聚类完成
-            if torch.all(centers == prev_centers):
+            centers = torch.stack(centers, dim=0)  # shape[K, F]
+            # 收敛
+            if prev_labels is not None and torch.all(labels == prev_labels):
                 break
-            prev_centers = centers
+            prev_labels = labels
         # 计算惯性
         inertia = 0.
         for i in range(n_clusters):
-            inertia += torch.sum((X[labels == i] - centers[i]) ** 2).item()
+            d2 = euclidean_distances(X[labels == i], centers[i], squared=True)  # [X]
+            inertia += torch.sum(d2).item()
         return centers, labels, inertia
 
     def fit(self, X):
@@ -123,6 +125,30 @@ class KMeans(TransformerMixin):
         X = torch.as_tensor(X, dtype=dtype, device=device)
         centers = self.cluster_centers_
         #
-        d2 = torch.sum((X - centers[:, None]) ** 2, dim=-1)
-        labels = torch.argmin(d2, 0)
+        d2 = euclidean_distances(X, centers, squared=True)  # shape[N, K]
+        labels = torch.argmin(d2, 1)
         return labels
+
+    def fit_predict(self, X):
+        """
+
+        :param X: shape[N, F]
+        :return: shape[N]
+        """
+        self.fit(X)
+        return self.labels_
+
+    def transform(self, X):
+        """
+
+        :param X: shape[N, F]
+        :return: shape[N, K]
+        """
+        dtype = self.dtype
+        device = self.device
+        centers = self.cluster_centers_
+        #
+        X = torch.as_tensor(X, dtype=dtype, device=device)
+        X = atleast_2d(X)
+        #
+        return euclidean_distances(X, centers)

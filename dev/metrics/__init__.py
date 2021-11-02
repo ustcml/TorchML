@@ -12,3 +12,4 @@ from .f1_score import f1_score
 from .fbeta_score import fbeta_score
 from .precision_recall_curve import precision_recall_curve
 from .average_precision_score import average_precision_score
+from .euclidean_distances import euclidean_distances
