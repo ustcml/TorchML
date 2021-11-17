@@ -6,7 +6,7 @@ import torch
 from torch import Tensor
 from typing import Tuple
 
-__all__ = ["_data_center", "atleast_2d"]
+__all__ = ["_data_center", "atleast_2d", "one_hot"]
 
 
 def _data_center(X: Tensor, y: Tensor = None) -> Tuple:
@@ -39,3 +39,12 @@ def atleast_2d(*tensors: Tensor):
         else:
             res.append(t)
     return res if len(res) > 1 else res[0]
+
+
+def one_hot(tensor: Tensor, n_classes: int = -1, dtype=None):
+    dtype = dtype or torch.long
+    device = tensor.device
+    #
+    if n_classes == -1:
+        n_classes = torch.max(tensor) + 1
+    return torch.eye(n_classes, dtype=dtype, device=device)[tensor]

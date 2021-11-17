@@ -2,7 +2,7 @@
 # Email: hjt_study@qq.com
 # Date: 
 import torch
-from ..utils import atleast_2d, _data_center
+from ..utils import atleast_2d, _data_center, one_hot
 from torch import Tensor
 from ..base import TransformerMixin
 from torch import Generator
@@ -47,6 +47,47 @@ class KMeans(TransformerMixin):
         centers = X[seeds]
         return centers
 
+    def _update_labels(self, X: Tensor, centers: Tensor) -> Tensor:
+        """
+
+        :param X: shape[N, F]
+        :param centers: shape[K, F]
+        :return: shape[N]
+        """
+        d2 = euclidean_distances(X, centers, squared=True)  # shape[N, K]
+        labels = torch.argmin(d2, 1)  # shape[N]
+        return labels
+
+    def _update_centers(self, X: Tensor, labels: Tensor) -> Tensor:
+        """Ot(KNF).
+
+        :param X: shape[N, F]
+        :param labels: shape[N]
+        :return: shape[K, F]
+        """
+        dtype = X.dtype
+        #
+        mask = one_hot(labels, dtype=dtype)  # shape[N, K]
+        n_active = torch.sum(mask, dim=0)
+        # [K, N] @ [N, F] / [K, 1]
+        centers = mask.T @ X / n_active[:, None]  # Ot(KNF)
+        return centers
+
+    def _update_centers2(self, X: Tensor, labels: Tensor) -> Tensor:
+        """Ot(NF). 但由于含for循环，所以使用_update_centers()方法.
+
+        :param X: shape[N, F]
+        :param labels: shape[N]
+        :return: shape[K, F]
+        """
+        n_clusters = self.n_clusters
+        #
+        centers = []  # Len[K] of shape[F]
+        for i in range(n_clusters):
+            centers.append(torch.mean(X[labels == i], 0))
+        centers = torch.stack(centers, dim=0)  # shape[K, F]
+        return centers
+
     def _kmeans_single(self, X: Tensor) -> Tuple[Tensor, Tensor, float]:
         """
 
@@ -58,19 +99,15 @@ class KMeans(TransformerMixin):
         """
         max_iter = self.max_iter
         n_clusters = self.n_clusters
-        # 初始化质心
+        # 初始化中心值
         centers = self._random_init_centers(X)  # shape[K, F]
         prev_labels = None
         for _ in range(max_iter):
-            # 更新labels
-            d2 = euclidean_distances(X, centers, squared=True)  # shape[N, K]
-            labels = torch.argmin(d2, 1)  # shape[N]
-            # 更新质心
-            centers = []  # 内含: shape[F]
-            for i in range(n_clusters):
-                centers.append(torch.mean(X[labels == i], 0))
-            centers = torch.stack(centers, dim=0)  # shape[K, F]
-            # 收敛
+            # 更新每个样本的labels
+            labels = self._update_labels(X, centers)
+            # 更新新的中心值
+            centers = self._update_centers(X, labels)
+            # 判断收敛
             if prev_labels is not None and torch.all(labels == prev_labels):
                 break
             prev_labels = labels

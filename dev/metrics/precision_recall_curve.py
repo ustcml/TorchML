@@ -9,7 +9,7 @@ from typing import Tuple
 
 def _binary_clf_curve(
         y_true, y_score) -> Tuple[Tensor, Tensor, Tensor]:
-    """
+    """计算fps, tps, thresholds
 
     :param y_true: shape[N]
     :param y_score: shape[N]
@@ -58,7 +58,10 @@ def precision_recall_curve(
     # recall最后不提升/变化的略去. 因为对AP不贡献
     last_ind = int(torch.searchsorted(tp, tp[-1])) + 1
     # 加入pr图(0, 1)点. 并进行reverse，使recall递减(同sklearn实现)
-    precision = torch.cat([torch.flip(precision[:last_ind], (0,)), torch.tensor([1], device=device)])
-    recall = torch.cat([torch.flip(recall[:last_ind], (0,)), torch.tensor([0], device=device)])
+    one = torch.tensor([1.], device=device)
+    zero = torch.tensor([0.], device=device)
+    # reverse and cat
+    precision = torch.cat([torch.flip(precision[:last_ind], (0,)), one])
+    recall = torch.cat([torch.flip(recall[:last_ind], (0,)), zero])
     thresholds = torch.flip(thresholds[:last_ind], (0,))
     return precision, recall, thresholds
