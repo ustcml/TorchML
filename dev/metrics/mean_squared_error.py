@@ -3,7 +3,6 @@
 # Date: 
 import torch
 from torch import Tensor
-from typing import Union
 
 
 def mean_squared_error(
@@ -27,7 +26,7 @@ def mean_squared_error(
         res = torch.sqrt(res)  # rmse
     #
     if isinstance(multioutput, str):
-        # 'raw_values'不做处理
+        # 'raw_values' does no processing
         if multioutput == "uniform_average":
             res = torch.mean(res)
     else:

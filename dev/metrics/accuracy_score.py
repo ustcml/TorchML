@@ -13,7 +13,7 @@ def accuracy_score(
 
     :param y_true: shape[N]
     :param y_pred: shape[N]
-    :param normalize: True: 返回float; False: 返回int
+    :param normalize: True: return float; False: return int
     :return:
     """
     dtype = torch.float32

@@ -12,16 +12,18 @@ def precision_recall_fscore_support(
         beta: float = 1.,
         pos_label: int = 1, average: str = None,
 ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-    """zero_division=0. 注意零除no warning, 不是sklearn默认值.
+    """zero_division=0. Note that zero divides(0/0 -> 0) have no warning, which is not the sklearn default.
 
     :param y_true: shape[N]
     :param y_pred: shape[N]
-    :param beta: [0, +inf). beta越大 recall的权重越大.
-        beta=1 precision和recall权重一致
-    :param pos_label: 当average='binary'时生效
+    :param beta: [0, +inf). The greater the beta, the greater the weight of recall.
+        if beta=1, precision and recall have the same weight
+    :param pos_label: takes effect when `average = 'binary'`
     :param average: {'binary', 'micro', 'macro', 'weighted', None}
-    :return: Tuple[precision, recall, fscore, support]. support即true_sum
+    :return: Tuple[precision, recall, fscore, support]. support is true_sum.
+        if average = None: shape[NC] [NC] [NC] [NC]
     """
+
     dtype = torch.float32
     y_true = torch.as_tensor(y_true, dtype=dtype)
     y_pred = torch.as_tensor(y_pred, dtype=dtype)
@@ -31,7 +33,7 @@ def precision_recall_fscore_support(
     pred_sum = torch.sum(cm, dim=0)  # shape[NC]
     tp = torch.diag(cm)  # shape[NC]
     #
-    if average == "micro":  # 基本不会用
+    if average == "micro":  # Barely use
         true_sum = torch.sum(true_sum)
         pred_sum = torch.sum(pred_sum)
         tp = torch.sum(tp)
@@ -46,11 +48,11 @@ def precision_recall_fscore_support(
     recall = tp / true_sum
     beta2 = beta ** 2
     fscore = (1 + beta2) * precision * recall / (beta2 * precision + recall)
-    # 处理nan. no warning
+    # handle nan. with no warning
     precision = torch.nan_to_num(precision)
     recall = torch.nan_to_num(recall)
     fscore = torch.nan_to_num(fscore)
-    # 处理average
+    # handle `average`
     if average == "macro":
         precision = torch.mean(precision)
         recall = torch.mean(recall)

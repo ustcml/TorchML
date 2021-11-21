@@ -10,7 +10,7 @@ __all__ = ["_data_center", "atleast_2d", "one_hot"]
 
 
 def _data_center(X: Tensor, y: Tensor = None) -> Tuple:
-    """数据居中
+    """
 
     :param X: shape[N, F]
     :param y: shape[N, Out]

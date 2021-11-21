@@ -9,13 +9,13 @@ from torch import Tensor
 
 
 class Ridge(LinearModel, RegressorMixin):
-    """使用svd实现"""
+    """Use `svd` implementation"""
 
     def __init__(self, *, alpha=1.0, dtype=None, device=None):
         self.dtype = dtype
         self.device = device
         self.alpha = alpha
-        # 此处shape可能与sklearn实现不同. 我认为这样实现更清晰.
+        # Shape may differ from sklearn implementations here. Shape is fixed
         self.coef_ = None  # shape[F, Out]
         self.intercept_ = None  # shape[Out]
 

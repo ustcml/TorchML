@@ -20,7 +20,7 @@ def _solve_svd(X: Tensor, y: Tensor, alpha: float) -> Tensor:
     # shape[N, Min], [Min], [Min, F]
     U, s, Vt = svd(X, full_matrices=False)
     d = s / (s ** 2 + alpha)  # shape[Min]
-    return Vt.T @ (d[:, None] * U.T) @ y
+    return Vt.T * d @ (U.T @ y)  # bracket: N always >> F
 
 
 class LinearModel(metaclass=ABCMeta):
@@ -64,7 +64,7 @@ class LinearClassifierMixin(ClassifierMixin):
         return X @ self.coef_.T + self.intercept_
 
     def predict(self, X):
-        scores = self.decision_function(X)  # 不经过sigmoid/softmax
+        scores = self.decision_function(X)  # Without sigmoid/softmax
         if scores.shape[1] == 1:
             indices = (scores > 0).to(dtype=torch.long)
         else:

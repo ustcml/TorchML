@@ -12,9 +12,9 @@ def fbeta_score(y_true, y_pred, *,
 
     :param y_true: shape[N]
     :param y_pred: shape[N]
-    :param beta: [0, +inf). beta越大 recall的权重越大.
-        beta=1 precision和recall权重一致
-    :param pos_label: 当average='binary'时生效
+    :param beta: [0, +inf). The greater the beta, the greater the weight of recall.
+        if beta=1, precision and recall have the same weight
+    :param pos_label: takes effect when `average = 'binary'`
     :param average: {'binary', 'micro', 'macro', 'weighted', None}
     :return:
     """

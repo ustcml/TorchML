@@ -25,7 +25,7 @@ print()
 2.948368549346924
 """
 
-# In[1]: 与线性回归比较
+# In[1]: Compare with linear regression
 reg = LinearRegression(device='cuda')
 t = time.time()
 reg.fit(X, y)
@@ -37,7 +37,7 @@ print()
 0.14960050582885742
 """
 
-# In[2]: 与SGD比较. sklearn的SGD是用cython写的
+# In[2]: Compare to SGD(sklearn), which is written in Cython
 rng = np.random.default_rng(42)
 X = rng.random((2000, 500))
 w = rng.random(500)

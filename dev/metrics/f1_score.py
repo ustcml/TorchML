@@ -12,7 +12,7 @@ def f1_score(y_true, y_pred, *,
 
     :param y_true: shape[N]
     :param y_pred: shape[N]
-    :param pos_label: 当average='binary'时生效
+    :param pos_label: takes effect when average ='binary'
     :param average: {'binary', 'micro', 'macro', 'weighted', None}
     :return:
     """

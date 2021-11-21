@@ -11,7 +11,7 @@ __all__ = ["PCA"]
 
 
 class PCA(TransformerMixin):
-    """使用full svd实现"""
+    """Use `full svd` implementation"""
 
     def __init__(self, n_components=None, *, dtype=None, device=None):
         self.n_components = n_components  # K
@@ -44,7 +44,7 @@ class PCA(TransformerMixin):
         self.components_ = Vt[:n_components]  # shape[K, F]
         #
         self.explained_variance_ = (S ** 2) / (X.shape[0] - 1)
-        total_var = torch.sum(self.explained_variance_)  # for 归一化
+        total_var = torch.sum(self.explained_variance_)  # for normalization
         self.explained_variance_ = self.explained_variance_[:n_components]
         self.explained_variance_ratio_ = self.explained_variance_ / total_var
         return self
@@ -65,5 +65,5 @@ class PCA(TransformerMixin):
         :return: shape[N, F]
         """
         X = torch.as_tensor(X, dtype=self.dtype, device=self.device)
-        # self.components_为正交矩阵. 逆等于转置
+        # self.components_ is an orthogonal matrix. Inverse is equal to transpose
         return X @ self.components_ + self.mean_

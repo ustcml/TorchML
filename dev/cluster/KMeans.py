@@ -17,10 +17,10 @@ class KMeans(TransformerMixin):
     def __init__(self, n_clusters=8, *,
                  n_init: int = 10, max_iter: int = 300, random_state=None,
                  dtype=None, device=None):
-        """init='random', algorithm='full'. 以后再优化
+        """init='random', algorithm='full'. Optimize it later(e.g. kmeans++)
 
         :param n_clusters:
-        :param n_init: 使用不同质心种子运行的次数
+        :param n_init: Number of seeds to runs for different initial centers
         """
         self.n_clusters = n_clusters  # K
         self.n_init = n_init
@@ -74,7 +74,7 @@ class KMeans(TransformerMixin):
         return centers
 
     def _update_centers2(self, X: Tensor, labels: Tensor) -> Tensor:
-        """Ot(NF). 但由于含for循环，所以使用_update_centers()方法.
+        """Because of the for loop, the _update_centers() method is used.
 
         :param X: shape[N, F]
         :param labels: shape[N]
@@ -99,19 +99,19 @@ class KMeans(TransformerMixin):
         """
         max_iter = self.max_iter
         n_clusters = self.n_clusters
-        # 初始化中心值
+        # Initialize the centers
         centers = self._random_init_centers(X)  # shape[K, F]
         prev_labels = None
         for _ in range(max_iter):
-            # 更新每个样本的labels
+            # Update labels for samples
             labels = self._update_labels(X, centers)
-            # 更新新的中心值
+            # Update centers
             centers = self._update_centers(X, labels)
-            # 判断收敛
+            # Judge convergence
             if prev_labels is not None and torch.all(labels == prev_labels):
                 break
             prev_labels = labels
-        # 计算惯性
+        # Calculate inertia
         inertia = 0.
         for i in range(n_clusters):
             d2 = euclidean_distances(X[labels == i], centers[i], squared=True)  # [X]

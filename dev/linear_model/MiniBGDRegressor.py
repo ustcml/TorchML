@@ -20,12 +20,12 @@ class MiniBGDRegressor(LinearModel, RegressorMixin):
             random_state=None, dtype=None, device=None):
         """loss='squared_error', penalty='l2'
 
-        :param alpha: 正则系数. (若为'l2'正则，则等价于weight_decay)
-        :param max_iter: 最大迭代次数(epoch)
-        :param eta0: 初始学习率
-        :param momentum: SGD的动量
-        :param shuffle: DataLoader的shuffle. 每个epoch随机混洗
-        :param num_workers: DataLoader的num_workers
+        :param alpha: Regularization coefficient. =weight_decay
+        :param max_iter: maximum number of iterations(epoch)
+        :param eta0: Initial learning rate
+        :param momentum: for SGD
+        :param shuffle: for DataLoader. every epoch shuffle
+        :param num_workers: for DataLoader
         """
         self.alpha = alpha
         self.max_iter = max_iter
@@ -77,7 +77,7 @@ class MiniBGDRegressor(LinearModel, RegressorMixin):
         #
         for i in range(max_iter):
             for Xi, yi in loader:
-                Xi, yi = Xi.to(device), yi.to(device)  # 显存占用更少
+                Xi, yi = Xi.to(device), yi.to(device)  # Less memory
                 y_pred = linear(Xi)
                 loss = mean_squared_error(yi, y_pred)
                 optim.zero_grad()

@@ -7,9 +7,9 @@ from sklearn.linear_model import LinearRegression as _LinearRegression
 import time
 from dev.linear_model import LinearRegression
 
-# In[0]: 测试运行时间
-# In[1]: 测试准确性
-# In[2]: 测试shape
+# In[0]: test run time
+# In[1]: test accuracy
+# In[2]: test shape
 rng = np.random.default_rng(42)
 X = rng.random((2000, 500), dtype=np.float32)
 y = rng.random((2000, 50), dtype=np.float32)
@@ -72,7 +72,7 @@ time: 0.010970
 time: 0.018955
 time: 0.010966
 """
-# 判断正确性
+# judge correctness
 print(np.allclose(y_sk, y_t, rtol=1e-4, atol=1e-5))
 print(np.allclose(s_sk, s_t, rtol=1e-4, atol=1e-6))
 print(np.allclose(c_sk, c_t, rtol=1e-4, atol=1e-6))
@@ -85,7 +85,7 @@ True
 True
 """
 
-# 测试shape
+# test shape
 print(y_sk.shape, y_t.shape)
 print(c_sk.shape, c_t.shape)
 print(i_sk.shape, i_t.shape)
@@ -96,7 +96,7 @@ print()
 (50,) (50,)
 """
 
-# In[3]: 与sklearn的区别: shape不同
+# In[3]: Differences from SkLearn: shape
 rng = np.random.default_rng(42)
 X = rng.random((2, 1), dtype=np.float32)
 y = rng.random((2,), dtype=np.float32)

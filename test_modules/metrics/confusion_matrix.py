@@ -35,7 +35,7 @@ tensor([[1.0000, 0.0000, 0.0000],
         [0.3333, 0.0000, 0.6667]])
 """
 
-# In[2]: 与sklearn的不同点; test nan
+# In[2]: Differences from Sklearn; and test nan
 y_true = [3]
 y_pred = [0]
 print(_confusion_matrix(y_true, y_pred, normalize='true'))

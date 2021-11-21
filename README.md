@@ -1,16 +1,16 @@
 # torchml
-开发中...
+Developing...
 
-### 目录结构说明
+### Directory Structure
 
-- `dev/` 开发代码目录
-- `test_modules/`: 测试代码目录
+- `dev/`: Development code directory
+- `test_modules/`: Test code directory
 
-### 参考资料
+### Reference
 
 - [https://scikit-learn.org/stable/modules/classes.html](https://scikit-learn.org/stable/modules/classes.html)
 - [https://pytorch.org/docs/stable/index.html](https://pytorch.org/docs/stable/index.html)
 
 
-### 环境
+### Environment
 - torch==1.10.0

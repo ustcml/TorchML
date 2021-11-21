@@ -20,6 +20,6 @@ def euclidean_distances(
     dtype = torch.float32
     X = torch.as_tensor(X, dtype=dtype)
     Y = torch.as_tensor(Y, dtype=dtype)
-    # sklearn的中的算法没看懂(可能更优)...
-    distances = torch.sum((X[:, None] - Y[None]) ** 2, dim=-1)  # 第二范数^2
+    # can be optimized
+    distances = torch.sum((X[:, None] - Y[None]) ** 2, dim=-1)  # Second norm^2
     return distances if squared else torch.sqrt(distances)

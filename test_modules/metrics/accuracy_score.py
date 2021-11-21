@@ -4,8 +4,8 @@
 from dev.metrics import accuracy_score
 import torch
 
-# In[0]: 测试normalize
-# In[1]: 测试bool
+# In[0]: test normalize
+# In[1]: test bool
 y = [1, 2, 3, 4, 5]
 y_pred = [5, 4, 3, 2, 1.]
 print(accuracy_score(y, y_pred))

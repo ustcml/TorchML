@@ -2,3 +2,7 @@ _dev_dev/
 _trash/
 plan.txt
 np/
+/dev/model_selection/
+/dev/preprocessing/
+/test_modules/model_selection/
+/test_modules/preprocessing/
