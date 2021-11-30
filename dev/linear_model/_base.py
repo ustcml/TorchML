@@ -2,25 +2,10 @@ from abc import ABCMeta, abstractmethod
 
 import torch
 from torch import Tensor
-from torch.linalg import svd
 from ..base import ClassifierMixin
-from ..utils import _data_center, atleast_2d
+from ..utils import atleast_2d
 
-__all__ = ["_solve_svd", "LinearModel", "LinearClassifierMixin"]
-
-
-def _solve_svd(X: Tensor, y: Tensor, alpha: float) -> Tensor:
-    """
-
-    :param X: shape[N, F]
-    :param y: shape[N, Out]
-    :param alpha:
-    :return: shape[F, Out]
-    """
-    # shape[N, Min], [Min], [Min, F]
-    U, s, Vt = svd(X, full_matrices=False)
-    d = s / (s ** 2 + alpha)  # shape[Min]
-    return Vt.T * d @ (U.T @ y)  # bracket: N always >> F
+__all__ = ["LinearModel", "LinearClassifierMixin"]
 
 
 class LinearModel(metaclass=ABCMeta):
@@ -48,8 +33,6 @@ class LinearModel(metaclass=ABCMeta):
         X = atleast_2d(X)
         return self._decision_function(X)
 
-    _data_center = staticmethod(_data_center)
-
 
 class LinearClassifierMixin(ClassifierMixin):
     """Mixin for linear classifiers"""
@@ -63,10 +46,28 @@ class LinearClassifierMixin(ClassifierMixin):
         X = torch.as_tensor(X, dtype=self.dtype, device=self.device)
         return X @ self.coef_.T + self.intercept_
 
-    def predict(self, X):
+    def predict_proba(self, X):
+        """
+
+        :param X: shape[N, F]
+        :return: shape[N, Out]
+        """
         scores = self.decision_function(X)  # Without sigmoid/softmax
         if scores.shape[1] == 1:
-            indices = (scores > 0).to(dtype=torch.long)
+            y_pred_proba = torch.sigmoid(scores)
         else:
-            indices = scores.argmax(dim=1)
-        return self.classes_[indices]
+            y_pred_proba = torch.softmax(scores, dim=-1)
+        return y_pred_proba
+
+    def predict(self, X):
+        """
+
+        :param X: shape[N, F]
+        :return: shape[N]
+        """
+        scores = self.decision_function(X)  # Without sigmoid/softmax
+        if scores.shape[1] == 1:
+            y_pred = (scores[:, 0] > 0).to(dtype=torch.long)
+        else:
+            y_pred = scores.argmax(dim=1)
+        return y_pred

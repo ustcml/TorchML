@@ -29,6 +29,24 @@ def _data_center(X: Tensor, y: Tensor = None) -> Tuple:
     return X, X_mean
 
 
+def _data_normalize(X: Tensor, y: Tensor = None) -> Tuple:
+    """
+
+    :param X: shape[N, F]
+    :param y: shape[N, Out]
+    :return:
+    """
+    X_mean = torch.mean(X, dim=0)
+    X_std = torch.std(X, dim=0)
+    X = (X - X_mean) / X_std
+    if y is not None:
+        y_mean = torch.mean(y, dim=0)
+        y_std = torch.std(y, dim=0)
+        y = (y - y_mean) / X_std
+        return X, y, X_mean, y_mean, X_std, y_std
+    return X, X_mean, X_std
+
+
 def atleast_2d(*tensors: Tensor):
     res = []
     for t in tensors:

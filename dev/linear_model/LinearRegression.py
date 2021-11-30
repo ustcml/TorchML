@@ -1,11 +1,12 @@
 # Author: Jintao Huang
 # Email: hjt_study@qq.com
 # Date:
-from ._base import LinearModel, _solve_svd
+from ._base import LinearModel
+from ._utils import _solve_svd
 from ..base import RegressorMixin
 import torch
 from torch.linalg import lstsq
-from ..utils import atleast_2d
+from ..utils import atleast_2d, _data_center
 from torch import Tensor
 
 
@@ -33,7 +34,7 @@ class LinearRegression(LinearModel, RegressorMixin):
         y = torch.as_tensor(y, dtype=dtype, device=device)
         X, y = atleast_2d(X, y)
         # shape[N, F], shape[N, Out], shape[F], shape[Out]
-        X, y, X_mean, y_mean = self._data_center(X, y)  # center
+        X, y, X_mean, y_mean = _data_center(X, y)  # center
 
         # or:
         # self.coef_ = _solve_svd(X, y, 0).T

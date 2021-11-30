@@ -4,3 +4,4 @@
 from .LinearRegression import LinearRegression
 from .MiniBGDRegressor import MiniBGDRegressor
 from .Ridge import Ridge
+from .LogisticRegression import LogisticRegression

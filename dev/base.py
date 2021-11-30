@@ -33,7 +33,6 @@ class ClassifierMixin:
         X = torch.as_tensor(X, dtype=dtype, device=device)
         y = torch.as_tensor(y, dtype=dtype, device=device)
         y_pred = self.predict(X)
-        y = atleast_2d(y)
         return accuracy_score(y, y_pred)
 
 

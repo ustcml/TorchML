@@ -1,28 +1,28 @@
 # Author: Jintao Huang
 # Email: hjt_study@qq.com
 # Date:
-from ._base import LinearModel
-from ..base import RegressorMixin
-from ..utils import atleast_2d, _data_center
+from ..base import ClassifierMixin
+from ._base import LinearClassifierMixin
+from ..utils import atleast_2d
 import torch
 from torch import Tensor
 import torch.nn as nn
-from ..metrics import mean_squared_error
+import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import SGD, Adam
 
 
-class MiniBGDRegressor(LinearModel, RegressorMixin):
+class LogisticRegression(LinearClassifierMixin, ClassifierMixin):
     def __init__(
             self, *, alpha=0.0001,
             max_iter=1000, batch_size=32,
-            eta0=None, adam=False, shuffle=True, num_workers=0,
+            eta0=0.01, adam=False, shuffle=True, num_workers=0,
             random_state=None, dtype=None, device=None):
-        """loss='squared_error', penalty='l2'
+        """penalty='l2'
 
         :param alpha: Regularization coefficient. =weight_decay
         :param max_iter: maximum number of iterations(epoch)
-        :param eta0: Initial learning rate. SGD: 1e-2, Adam: 1e-3
+        :param eta0: Initial learning rate
         :param adam:
             False: SGD: momentum=0.9, nesterov=True
             True: Adam: beta=(0.9, 0.999), eps=1e-8
@@ -46,8 +46,8 @@ class MiniBGDRegressor(LinearModel, RegressorMixin):
     def fit(self, X, y):
         """
 
-        :param X: shape[N, F] or [N}
-        :param y: shape[N, Out] or [N]
+        :param X: shape[N, F] or [N]
+        :param y: shape[N]
         :return:
         """
         dtype = self.dtype = self.dtype or torch.float32
@@ -64,14 +64,19 @@ class MiniBGDRegressor(LinearModel, RegressorMixin):
         pin_memory = False if device.lower() == "cpu" else True
         #
         X = torch.as_tensor(X, dtype=dtype)
-        y = torch.as_tensor(y, dtype=dtype)
-        X, y = atleast_2d(X, y)
-        X, y, X_mean, y_mean = _data_center(X, y)  # center
-        X_mean, y_mean = X_mean.to(device), y_mean.to(device)
+        y = torch.as_tensor(y)
+        X = atleast_2d(X)
+        #
+        num_classes = torch.max(y) + 1
+        if num_classes > 2:  # multi classification. y: shape[N, C]
+            y = F.one_hot(y.long(), -1)
+        else:  # binary classification. y: shape[N, 1]
+            y = y[:, None]
+        y = y.to(dtype=dtype)
         #
         if random_state:
             torch.manual_seed(random_state)
-        linear = nn.Linear(X.shape[1], y.shape[1], bias=False).to(device)
+        linear = nn.Linear(X.shape[1], y.shape[1], bias=True).to(device)
         dataset = TensorDataset(X, y)
         loader = DataLoader(dataset, batch_size, shuffle, pin_memory=pin_memory, num_workers=num_workers)
         optim = SGD(linear.parameters(), eta0, 0.9, weight_decay=alpha, nesterov=True) if not adam else \
@@ -79,13 +84,16 @@ class MiniBGDRegressor(LinearModel, RegressorMixin):
         #
         for i in range(max_iter):
             for Xi, yi in loader:
-                Xi, yi = Xi.to(device), yi.to(device)  # Less memory
+                Xi, yi = Xi.to(device), yi.to(device)  # less memory
                 y_pred = linear(Xi)
-                loss = mean_squared_error(yi, y_pred)
+                if y.shape[1] == 1:
+                    loss = F.binary_cross_entropy_with_logits(y_pred, yi)
+                else:
+                    loss = F.cross_entropy(y_pred, yi)
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
         #
         self.coef_ = linear.weight.detach()
-        self.intercept_ = y_mean - X_mean @ self.coef_.T
+        self.intercept_ = linear.bias.detach()
         return self
